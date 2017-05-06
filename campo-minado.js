@@ -16,15 +16,32 @@ var quadradinho = {
     d: function() {
         if (!this.revelado) {
             fill(0,100,250);
-        } else{
+            rect(this.x,this.y,this.s,this.s);
+        } else {
             fill(255);
-        
             if (this.bomba){
                 fill(255,0,0);
-                
+            }
+        rect(this.x,this.y,this.s,this.s);
+        if (this.proximidade > 0){
+            fill(0,100,250);
+            text(this.proximidade, this.x + this.s/2, this.y + this.s/2);
+        }
+        }
+    },
+    vizinhos: function() {
+        vizinhos = [];
+        for (i = 0; i < tabuleiro.length-1; i++) {
+            if ((tabuleiro[i].col >= this.col -1 && tabuleiro[i].col <= this.col +1) && (tabuleiro[i].lin >= this.lin-1 && tabuleiro[i].lin <= this.lin +1) && !(tabuleiro[i].lin == this.lin && tabuleiro[i].col == this.col)){
+                vizinhos.push(tabuleiro[i]);
             }
         }
-        rect(this.x,this.y,this.s,this.s);
+        return vizinhos;
+    },
+    revelar: function() {
+        if(!this.revelado) {
+           this.revelado = true;
+        }
     }
 };
 
@@ -49,6 +66,10 @@ while(bombas > 0) {
     var qbomba = Math.floor(aleatorio);
     if(!tabuleiro[qbomba].bomba){ 
         tabuleiro[qbomba].bomba = true;
+        vizinhos=tabuleiro[qbomba].vizinhos();
+        vizinhos.forEach(function(v){
+            v.proximidade++;
+        })
         bombas--;
     }
 }
@@ -56,6 +77,7 @@ while(bombas > 0) {
 
 function setup() {
     createCanvas(800,600);
+    textAlign(CENTER,CENTER)
 }
 
 function draw() {
@@ -73,6 +95,6 @@ function verificaClique(q) {
     cliqueY = Math.floor(mouseY / q.s);
     
     if (cliqueX == q.col && cliqueY == q.lin) {
-        q.revelado = true;
+        q.revelar();
     }
 }
