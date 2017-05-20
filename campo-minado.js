@@ -46,11 +46,14 @@ var quadradinho = {
     revelar: function() {
         if(!this.revelado && !this.bomba) {
             this.revelado = true;
+            this.marcado = false
             if(this.proximidade==0){
                 vizinhos = this.vizinhos();
                 vizinhos.forEach(function(q){
-                    q.revelar();                 
+                    q.revelar(); 
+                    
                 }); 
+               
             }
         }
         if(this.bomba && !this.revelado) {
@@ -60,23 +63,29 @@ var quadradinho = {
                     q.revelar();
                 }    
             });
+            gameover = true;
         }
     },
     desarme: function(){
+        if (this.marcado){
+            this.marcado = false;
+        }else{
         marcadas = 0;
         for(i = 0; i < tabuleiro.length; i++){
             if (tabuleiro[i].marcado) {
                 marcadas++
             }
         }
-        if (marcadas < qtb) {
+        if (marcadas < qtb && !this.revelado) {
             this.marcado=true;
         }
         
     }
+    }
 };
 
 var tabuleiro = [];
+var gameover = false;
 
 var colunas = 15;
 var linhas = 15;
@@ -134,7 +143,7 @@ function verificaClique(q) {
 }
 
 function keyPressed() {
-    if(key == ' '){
+    if(key == ' ' && !gameover){
         tabuleiro.forEach(verificaDesarmar);
     }
 }
@@ -149,10 +158,16 @@ function draw() {
     tabuleiro.forEach(function (q){
         q.d();
     });
+    
+    if (gameover) {
+        textSize(120);
+        fill(255,0,0);
+        text("GAMEOVER",width/2,height/2);
+    }
 }
 
 function mousePressed() {
-    tabuleiro.forEach(verificaClique);
+    if(!gameover)tabuleiro.forEach(verificaClique);
 }
 function verificaClique(q) {
     cliqueX = Math.floor(mouseX / q.s);
@@ -170,4 +185,20 @@ function verificaDesarmar(q) {
     if (cliqueX == q.col && cliqueY == q.lin) {
         q.desarme();
     }
+}
+
+function verficaVitoria() {
+   for(i-0;i<tabuleiro.length;i++) {
+       if(tabuleiro[i].bomba) {
+           bombas.push(tabuleiro[i]);
+       }
+   }
+    
+   for(i=0;i<bombas.length;i++) {
+       if(!bombas[i].marcado) {
+           return false;
+       }
+   } 
+    
+    return true;
 }
